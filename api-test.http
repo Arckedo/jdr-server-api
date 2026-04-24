@@ -1,0 +1,171 @@
+### Variables Globales
+@baseUrl = http://localhost:8080/api
+@mjId = 1
+@joueurId = 2
+@partieId = 1
+@salonId = 1
+@persoId = 1
+@membreId = 1
+
+
+
+# ==========================================
+# GESTION DES UTILISATEURS
+# ==========================================
+
+### Inscrire un Administrateur
+POST {{baseUrl}}/utilisateur/inscrire
+Content-Type: application/json
+
+{
+  "pseudo": "AdminMaster",
+  "mail": "admin@jdr.fr",
+  "password": "password123"
+}
+
+### Inscrire un Maître du Jeu (MJ)
+POST {{baseUrl}}/utilisateur/inscrire
+Content-Type: application/json
+
+{
+  "pseudo": "MJ_Dragon",
+  "mail": "mj@jdr.fr",
+  "password": "password123"
+}
+
+### Connexion
+POST {{baseUrl}}/utilisateur/connexion
+Content-Type: application/json
+
+{
+  "mail": "mj@jdr.fr",
+  "password": "password123"
+}
+
+### Récupérer un profil par Pseudo
+GET {{baseUrl}}/utilisateur/pseudo/MJ_Dragon
+
+### Modifier un profil
+PUT {{baseUrl}}/utilisateur/{{mjId}}
+Content-Type: application/json
+
+{
+  "pseudo": "MJ_Dragon_Modifié",
+  "mail": "newmj@jdr.fr"
+}
+
+### Nommer un administrateur (Requiert droits Admin)
+PATCH {{baseUrl}}/utilisateur/{{mjId}}/nommer-admin
+
+
+# ==========================================
+# GESTION DES PERSONNAGES
+# ==========================================
+
+### Créer un personnage pour le joueur
+POST {{baseUrl}}/personnages/utilisateur/{{joueurId}}
+Content-Type: application/json
+
+{
+  "nom": "Grog le Barbare"
+}
+
+### Lister les personnages d'un utilisateur
+GET {{baseUrl}}/personnages/utilisateur/{{joueurId}}
+
+### Voir les détails d'un personnage
+GET {{baseUrl}}/personnages/{{persoId}}
+
+
+# ==========================================
+# GESTION DES PARTIES & SALONS
+# ==========================================
+
+### Créer une nouvelle campagne
+POST {{baseUrl}}/parties/creer/{{mjId}}
+Content-Type: application/json
+
+{
+  "nom": "La Quête de l'Anneau",
+  "maxJoueurs": 5
+}
+
+### Inviter un joueur à la partie
+POST {{baseUrl}}/parties/{{partieId}}/inviter/{{joueurId}}
+
+### Accepter l'invitation (ID membre requis)
+PATCH {{baseUrl}}/parties/invitation/{{joueurId}}/accepter
+
+### Créer un salon de discussion dans la partie
+POST {{baseUrl}}/parties/{{partieId}}/salons
+Content-Type: application/json
+
+{
+  "nom": "Auberge du Poney Fringant"
+}
+
+### Lister les salons d'une partie
+GET {{baseUrl}}/parties/{{partieId}}/salons
+
+### Autoriser un personnage dans un salon spécifique
+POST {{baseUrl}}/parties/salons/{{salonId}}/personnages/{{persoId}}
+
+### Modifier les permissions d'un personnage (Niveau Enum)
+PUT {{baseUrl}}/parties/salons/{{salonId}}/permissions
+Content-Type: application/json
+
+{
+  "personnageId": {{persoId}},
+  "niveau": "ADMIN"
+}
+
+### Modifier les permissions d'un personnage (Niveau Enum)
+PUT {{baseUrl}}/parties/salons/{{salonId}}/permissions
+Content-Type: application/json
+
+{
+  "personnageId": {{persoId}},
+  "niveau": "ECRITURE"
+}
+
+# ==========================================
+# SYSTÈME DE MESSAGERIE
+# ==========================================
+
+### Envoyer un message (Texte normal)
+POST {{baseUrl}}/messages/salon/{{salonId}}/utilisateur/{{joueurId}}
+Content-Type: application/json
+
+{
+  "personnageId": {{persoId}},
+  "contenu": "Je commande une bière et je regarde le rôdeur au fond de la salle."
+}
+
+### Envoyer un message (Lancer de dés)
+POST {{baseUrl}}/messages/salon/{{salonId}}/utilisateur/{{joueurId}}
+Content-Type: application/json
+
+{
+  "personnageId": {{persoId}},
+  "contenu": "/roll 1d20 + 5"
+}
+
+### Récupérer les messages du salon
+GET {{baseUrl}}/messages/salon/{{salonId}}/utilisateur/{{joueurId}}?personnageId={{persoId}}
+
+
+# ==========================================
+# NETTOYAGE & ADMINISTRATION
+# ==========================================
+
+### Bannir un utilisateur d'une partie
+PATCH {{baseUrl}}/parties/{{partieId}}/bannir/{{joueurId}}
+
+### Supprimer un salon
+DELETE {{baseUrl}}/parties/salons/{{salonId}}
+
+### Supprimer un personnage
+DELETE {{baseUrl}}/personnages/{{persoId}}/utilisateur/{{joueurId}}
+
+### Supprimer définitivement un utilisateur
+DELETE {{baseUrl}}/utilisateur/{{joueurId}}
